@@ -1,0 +1,170 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © mrnaik13
+
+//@version=5
+indicator("Junkture-Auto-Fibo", shorttitle = "Junkture-Fibo", overlay = true)
+
+sessSpec = input.session(title="Session Timings", defval="0915-1530")
+showExtendedLines = input.bool(title="Show Extended Lines", defval=true)
+lookbackBars = input.int(title="Lookback Bars Number", defval=13)
+
+is_fib_3_618 = input.bool(title="3.618", defval=true)
+is_fib_2_618 = input.bool(title="2.618", defval=true)
+is_fib_2_414 = input.bool(title="2.414", defval=true)
+is_fib_2_272 = input.bool(title="2.272", defval=true)
+is_fib_2_000 = input.bool(title="2.000", defval=true)
+is_fib_1_618 = input.bool(title="1.618", defval=true)
+is_fib_1_414 = input.bool(title="1.414", defval=true)
+is_fib_1_272 = input.bool(title="1.272", defval=true)
+is_fib_1_000 = input.bool(title="1.000", defval=true)
+is_fib_0_786 = input.bool(title="0.786", defval=true)
+is_fib_0_618 = input.bool(title="0.618", defval=true)
+is_fib_0_500 = input.bool(title="0.500", defval=true)
+is_fib_0_382 = input.bool(title="0.382", defval=true)
+is_fib_0_236 = input.bool(title="0.236", defval=true)
+is_fib_0_000 = input.bool(title="0.000", defval=true)
+
+is_newbar(res, sess) =>
+    t = time(res, sess)
+    na(t[1]) and not na(t) or t[1] < t
+
+newbar = is_newbar("1440", sessSpec)
+
+var float maxr = na
+var float minr = na
+var float ranr = na
+if newbar
+    
+    highestVal = 0.
+    lowestVal = 100000000000000.
+    
+    for i = 1 to lookbackBars
+        highestVal := math.max(open[i], close[i], highestVal)
+        lowestVal := math.min(open[i], close[i], lowestVal)
+    
+    yesterdayLastClose = close[1]
+    
+    todayHighestVal = open > close ? open : close
+    todayLowestVal = open < close ? open : close
+    
+    if open > yesterdayLastClose
+        maxr := todayHighestVal
+        minr := lowestVal
+    if open < yesterdayLastClose
+        maxr := todayLowestVal
+        minr := highestVal
+        
+    ranr := maxr - minr
+
+fib_3_618 = math.round((maxr + 2.618 * ranr), 2)
+fib_2_618 = math.round((maxr + 1.618 * ranr), 2)
+fib_2_414 = math.round((maxr + 1.414 * ranr), 2)
+fib_2_272 = math.round((maxr + 1.272 * ranr), 2)
+fib_2_000 = math.round((maxr + 1.000 * ranr), 2)
+fib_1_618 = math.round((maxr + 0.618 * ranr), 2)
+fib_1_414 = math.round((maxr + 0.414 * ranr), 2)
+fib_1_272 = math.round((maxr + 0.272 * ranr), 2)
+fib_1_000 = math.round(maxr, 2)
+fib_0_786 = math.round((maxr - 0.214 * ranr), 2)
+fib_0_618 = math.round((maxr - 0.382 * ranr), 2)
+fib_0_500 = math.round((maxr - 0.500 * ranr), 2)
+fib_0_382 = math.round((maxr - 0.618 * ranr), 2)
+fib_0_236 = math.round((maxr - 0.764 * ranr), 2)
+fib_0_000 = math.round(minr, 2)
+
+plot(not showExtendedLines and is_fib_3_618 ? fib_3_618 : na, title="3.618", color=color.fuchsia)
+plot(not showExtendedLines and is_fib_2_618 ? fib_2_618 : na, title="2.618", color=color.red)
+plot(not showExtendedLines and is_fib_2_414 ? fib_2_414 : na, title="2.414", color=color.teal)
+plot(not showExtendedLines and is_fib_2_272 ? fib_2_272 : na, title="2.272", color=color.yellow)
+plot(not showExtendedLines and is_fib_2_000 ? fib_2_000 : na, title="2.000", color=color.lime, style=plot.style_circles)
+plot(not showExtendedLines and is_fib_1_618 ? fib_1_618 : na, title="1.618", color=color.blue, style=plot.style_circles)
+plot(not showExtendedLines and is_fib_1_414 ? fib_1_414 : na, title="1.414", color=color.green)
+plot(not showExtendedLines and is_fib_1_272 ? fib_1_272 : na, title="1.272", color=color.orange, style=plot.style_circles)
+plot(not showExtendedLines and is_fib_1_000 ? fib_1_000 : na, title="1.000", color=color.gray)
+plot(not showExtendedLines and is_fib_0_786 ? fib_0_786 : na, title="0.786", color=color.red, style=plot.style_circles)
+plot(not showExtendedLines and is_fib_0_618 ? fib_0_618 : na, title="0.618", color=color.blue)
+plot(not showExtendedLines and is_fib_0_500 ? fib_0_500 : na, title="0.500", color=color.orange)
+plot(not showExtendedLines and is_fib_0_382 ? fib_0_382 : na, title="0.382", color=color.fuchsia)
+plot(not showExtendedLines and is_fib_0_236 ? fib_0_236 : na, title="0.236", color=color.red)
+plot(not showExtendedLines and is_fib_0_000 ? fib_0_000 : na, title="0.000", color=color.gray)
+
+
+if newbar
+    xAxisLabel = int(time_close[0]) + 70000000
+    xAxis1Line = int(time[0])
+    xAxis2Line = int(time_close[0]) + 21750000
+    
+    if is_fib_3_618
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_3_618, x2 = xAxis2Line, y2 = fib_3_618, xloc=xloc.bar_time, color=color.fuchsia, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_3_618, text="3.618(" + str.tostring(fib_3_618) + ")", textcolor=color.fuchsia, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_2_618
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_2_618, x2 = xAxis2Line, y2 = fib_2_618, xloc=xloc.bar_time, color=color.red, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_2_618, text="2.618(" + str.tostring(fib_2_618) + ")", textcolor=color.red, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_2_414
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_2_414, x2 = xAxis2Line, y2 = fib_2_414, xloc=xloc.bar_time, color=color.teal, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_2_414, text="2.414(" + str.tostring(fib_2_414) + ")", textcolor=color.teal, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_2_272
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_2_272, x2 = xAxis2Line, y2 = fib_2_272, xloc=xloc.bar_time, color=color.green, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_2_272, text="2.272(" + str.tostring(fib_2_272) + ")", textcolor=color.green, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_2_000
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_2_000, x2 = xAxis2Line, y2 = fib_2_000, xloc=xloc.bar_time, color=color.lime, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_2_000, text="2.000(" + str.tostring(fib_2_000) + ")", textcolor=color.lime, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_1_618
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_1_618, x2 = xAxis2Line, y2 = fib_1_618, xloc=xloc.bar_time, color=color.blue, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_1_618, text="1.618(" + str.tostring(fib_1_618) + ")", textcolor=color.blue, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_1_414
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_1_414, x2 = xAxis2Line, y2 = fib_1_414, xloc=xloc.bar_time, color=color.yellow, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_1_414, text="1.414(" + str.tostring(fib_1_414) + ")", textcolor=color.yellow, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_1_272
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_1_272, x2 = xAxis2Line, y2 = fib_1_272, xloc=xloc.bar_time, color=color.orange, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_1_272, text="1.272(" + str.tostring(fib_1_272) + ")", textcolor=color.orange, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_1_000
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_1_000, x2 = xAxis2Line, y2 = fib_1_000, xloc=xloc.bar_time, color=color.gray, style=line.style_solid, width=3)
+            label.new(x = xAxisLabel, y = fib_1_000, text="1.000(" + str.tostring(fib_1_000) + ")", textcolor=color.gray, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_0_786
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_786, x2 = xAxis2Line, y2 = fib_0_786, xloc=xloc.bar_time, color=color.red, style=line.style_solid, width=3)
+            label.new(x = xAxisLabel, y = fib_0_786, text="0.786(" + str.tostring(fib_0_786) + ")", textcolor=color.red, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_0_618
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_618, x2 = xAxis2Line, y2 = fib_0_618, xloc=xloc.bar_time, color=color.blue, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_0_618, text="0.618(" + str.tostring(fib_0_618) + ")", textcolor=color.blue, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_0_500
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_500, x2 = xAxis2Line, y2 = fib_0_500, xloc=xloc.bar_time, color=color.orange, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_0_500, text="0.500(" + str.tostring(fib_0_500) + ")", textcolor=color.orange, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_0_382
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_382, x2 = xAxis2Line, y2 = fib_0_382, xloc=xloc.bar_time, color=color.fuchsia, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_0_382, text="0.382(" + str.tostring(fib_0_382) + ")", textcolor=color.fuchsia, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+        
+    if is_fib_0_236
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_236, x2 = xAxis2Line, y2 = fib_0_236, xloc=xloc.bar_time, color=color.red, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_0_236, text="0.236(" + str.tostring(fib_0_236) + ")", textcolor=color.red, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
+    
+    if is_fib_0_000
+        if showExtendedLines
+            line.new(x1 = xAxis1Line, y1 = fib_0_000, x2 = xAxis2Line, y2 = fib_0_000, xloc=xloc.bar_time, color=color.gray, style=line.style_solid, width=1)
+            label.new(x = xAxisLabel, y = fib_0_000, text="0.000(" + str.tostring(fib_0_000) + ")", textcolor=color.gray, style=label.style_label_lower_right, xloc=xloc.bar_time, color=#00000000)
